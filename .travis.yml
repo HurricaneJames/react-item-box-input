@@ -5,7 +5,7 @@ before_script:
   - "npm install -g codeclimate-test-reporter"
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-script: "npm run test-cov"
+script: "npm test"
 after_script: "cat coverage/lcov.info | codeclimate"
 addons:
   code_climate:
