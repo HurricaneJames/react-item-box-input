@@ -52,9 +52,10 @@ var ItemBox = React.createClass({
     value: React.PropTypes.string,
     onChange: React.PropTypes.func,
     items: ImmutablePropTypes.listOf(ImmutablePropTypes.shape({
-      template: React.PropTypes.func.isRequired,
-      data: React.PropTypes.any
+      template: React.PropTypes.func,
+      data: React.PropTypes.any.isRequired
     })).isRequired,
+    itemTemplate: React.PropTypes.func,
     onRemove: React.PropTypes.func,
     triggerKeys: React.PropTypes.arrayOf(React.PropTypes.number),
     onTrigger: React.PropTypes.func
@@ -203,7 +204,7 @@ var ItemBox = React.createClass({
                 onClick={this.onItemClick.bind(null, index)}
               >
                 {
-                  React.createElement(item.get('template') || DefaultTemplate, {
+                  React.createElement(item.get('template') || this.props.itemTemplate || DefaultTemplate, {
                     data: item.get('data'),
                     selected: isSelected,
                     onRemove: this.onItemRemove.bind(null, index)

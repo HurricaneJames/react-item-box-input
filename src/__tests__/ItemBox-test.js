@@ -40,6 +40,28 @@ var TestTemplate = React.createClass({
   }
 });
 
+var TestTemplate2 = React.createClass({
+  displayName: 'TestTemplate2',
+  propTypes: {
+    data: ImmutablePropTypes.shape({
+      text: React.PropTypes.string
+    }),
+    selected: React.PropTypes.bool,
+    onRemove: React.PropTypes.func
+  },
+  render: function() {
+    return (
+      <div
+        className={TEST_TEMPLATE_CLASS + '_2' + (this.props.selected ? ' ' + TEST_TEMPLATE_SELECTED_CLASS : '')}
+        style={{display: 'inline-block'}}
+      >
+        {this.props.data.get('text')}
+        <span className={TEST_TEMPLATE_DELETE_BUTTON_CLASS} onClick={this.props.onRemove} />
+      </div>
+    );
+  }
+});
+
 var _safeRenderCount = 0;
 function safeRender(element) {
   var elem = document.createElement('div');
@@ -109,7 +131,6 @@ describe('ItemBox', function() {
   });
 
   it('should render each item, in order, with a default itemTemplate', function() {
-    allowWarnings = true;
     var itemsWithoutTemplates = Immutable.fromJS([
       { data: { id: 1, text: 'aaa' } },
       { data: { id: 2, text: 'bbb' } }
@@ -117,7 +138,16 @@ describe('ItemBox', function() {
     view = safeRender(<TestComponent value="" items={itemsWithoutTemplates} />);
     check = TestUtils.scryRenderedDOMComponentsWithClass(view, 'item');
     expect(check.length).to.be(2);
-    sinon.assert.called(console.warn);
+  });
+
+  it('should accept a default template to use (itemTemplate) when the item does not specify its own template', function() {
+    var itemsWithMixedTemplates = Immutable.fromJS([
+      { data: { id: 1, text: 'aaa' }, template: TestTemplate },
+      { data: { id: 2, text: 'bbb' } }
+    ]);
+    view = safeRender(<TestComponent value="" items={itemsWithMixedTemplates} itemTemplate={TestTemplate2} />);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS).length).to.be(1);
+    expect(TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS + '_2').length).to.be(1);
   });
 
   it('should put the entry point on the same line as the last item', function() {
