@@ -4,3 +4,27 @@
 
 This component implements an input box with a list of items inside the input box. It is possible to navigate the items with the arrow keys or by clicking on them. It is also possible to set trigger keys which fire a callback.
 
+## Using Item Box Input
+
+````javascript
+var items = Immutable.fromJS([
+  { data: { id: 1, text: 'aaa' }, template: SomeComponent },
+  { data: { id: 2, text: 'bbb' } }
+]);
+<ItemBox
+  items={items}
+  itemTemplate={DifferentTemplate}
+  value={this.state.value}
+  onChange={this.onChange}
+  triggerKeys={[KEY_CODE_COMMA]}
+  onTrigger={this.onTrigger}
+/>
+````
+
+Each item is rendered with by a template. If the item specifies its own template, that template is used. Next, the box checks for a prop supplied default (itemTemplate). Finally, ItemBox has a dumb default implementation.
+
+The text entry is done with an input element. Whenever the user types, it is passed up via the onChange prop. There is also an onTrigger prop that will trigger when a keyUp event (useful for tracking keys like tab or escape that do not trigger onChange).
+
+## Changelog
+1.1.0 added component level `itemTemplate` prop to supply a default template.
+1.0.0 initial release
