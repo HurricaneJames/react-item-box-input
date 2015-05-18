@@ -1,6 +1,4 @@
 require('./testdom')();
-var sinon = require('sinon');
-var expect = require('expect.js');
 var Immutable = require('immutable');
 var React = require('react/addons');
 var TestUtils = React.addons.TestUtils;

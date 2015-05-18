@@ -26,5 +26,10 @@ Each item is rendered with by a template. If the item specifies its own template
 The text entry is done with an input element. Whenever the user types, it is passed up via the onChange prop. There is also an onTrigger prop that will trigger when a keyUp event (useful for tracking keys like tab or escape that do not trigger onChange).
 
 ## Changelog
+
+1.1.1 fixed to work in environments that lack browser layout abilities (tests/isomorphic).
+  - added a `defaultWidth` prop that will specify the width of the container for the item list when it cannot be determined from the browser
+
 1.1.0 added component level `itemTemplate` prop to supply a default template.
+
 1.0.0 initial release
