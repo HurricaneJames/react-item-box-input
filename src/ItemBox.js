@@ -58,11 +58,13 @@ var ItemBox = React.createClass({
     itemTemplate: React.PropTypes.func,
     onRemove: React.PropTypes.func,
     triggerKeys: React.PropTypes.arrayOf(React.PropTypes.number),
-    onTrigger: React.PropTypes.func
+    onTrigger: React.PropTypes.func,
+    defaultWidth: React.PropTypes.number        // the default width (in px) of the component if it cannot be determined by the DOM
   },
   getDefaultProps: function() {
     return {
-      items: new Immutable.List()
+      items: new Immutable.List(),
+      defaultWidth: 500
     };
   },
   getInitialState: function() {
@@ -80,9 +82,9 @@ var ItemBox = React.createClass({
   },
   resizeEntryWidth: function(entryText) {
     var node = this.refs.entry.getDOMNode();
-    var entryOffset = this.props.items.size > 0 ? Math.ceil(this.refs['item' + (this.props.items.size - 1)].getDOMNode().getBoundingClientRect().right) : node.offsetLeft;
-    var maxWidth = node.parentNode.clientWidth;
-    var textWidth = this.getTextWidth(entryText);
+    var entryOffset = (this.props.items.size > 0 ? Math.ceil(this.refs['item' + (this.props.items.size - 1)].getDOMNode().getBoundingClientRect().right) : node.offsetLeft) || 0;
+    var maxWidth = node.parentNode.clientWidth || this.props.defaultWidth;
+    var textWidth = this.getTextWidth(entryText) || 0;
     var newWidth = (textWidth + entryOffset > maxWidth) ? maxWidth : maxWidth - entryOffset;
     if(newWidth !== this.state.width) {
       this.setState({ width: newWidth });
