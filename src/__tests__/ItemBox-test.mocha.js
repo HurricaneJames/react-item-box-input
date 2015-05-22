@@ -4,7 +4,7 @@ var React = require('react/addons');
 var TestUtils = React.addons.TestUtils;
 var ItemBox = require('../ItemBox');
 
-describe('AdvancedByline', function() {
+describe('ItemBox', function() {
   it('should not blow up', function() {
     var name = 'test';
     var contributors = Immutable.fromJS([
