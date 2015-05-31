@@ -4,6 +4,10 @@ var React = require('react')
 const UL_STYLE = { listStyle: 'none', margin: 0, padding: 0, display: 'inline' };
 const LI_STYLE = { display: 'inline' };
 const NONE_SELECTED = -1;
+const KEY_CODE_LEFT = 37;
+const KEY_CODE_RIGHT = 39;
+const KEY_CODE_DELETE = 48;
+const KEY_CODE_BACKSPACE = 8;
 
 var ItemList = React.createClass({
   displayName: 'ItemList',
@@ -51,6 +55,12 @@ var ItemList = React.createClass({
     //   this.focus(this.refs.entry);
     }
   },
+  selectPrevious: function() {
+    if(this.state.selected !== NONE_SELECTED) { this.selectItem(this.state.selected - 1); }
+  },
+  selectNext: function() {
+    if(this.state.selected <= this.props.items.size) { this.selectItem(this.state.selected + 1); }
+  },
   onItemBlur: function() {
     // there is an edge case where selecting previous/next automatically blurs before setState can run
     // so we use a property set on this to check
@@ -63,6 +73,16 @@ var ItemList = React.createClass({
     e.preventDefault();
     e.stopPropagation();
     this.selectItem(index);
+  },
+  onKeyDown: function(e) {
+    switch(e.keyCode) {
+      case KEY_CODE_LEFT:
+        this.selectPrevious();
+        break;
+      case KEY_CODE_RIGHT:
+        this.selectNext();
+        break;
+    }
   },
   renderTemplate: function(item, index) {
     return (
@@ -95,7 +115,7 @@ var ItemList = React.createClass({
   render: function() {
     var items = this.props.items.map(this.renderItem).toArray();
     return (
-      <ul style={UL_STYLE}>
+      <ul style={UL_STYLE} onKeyDown={this.onKeyDown}>
         {
           items
         }

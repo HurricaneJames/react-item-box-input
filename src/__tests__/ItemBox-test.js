@@ -8,6 +8,10 @@ var TestTemplates = require('./ItemBox-TestTemplate')
   , TestTemplate = TestTemplates.default
   , TestTemplate2 = TestTemplates.alternate;
 
+const KEY_CODE_LEFT = 37;
+const KEY_CODE_RIGHT = 39;
+const KEY_CODE_DELETE = 48;
+const KEY_CODE_BACKSPACE = 8;
 const DEFAULT_ITEMS = Immutable.fromJS([
   { template: TestTemplate, data: { id: 1, text: 'aaa' } },
   { template: TestTemplate, data: { id: 2, text: 'bbb' } }
@@ -193,22 +197,22 @@ describe('ItemBox', function() {
         done();
       }, 50);
     });
-  //   it('should mark the previous item as selected when hitting the left arrow', function() {
-  //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
-  //     TestUtils.Simulate.click(check[1]);
-  //     TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_LEFT });
-  //     expect(check[0].getDOMNode().className).to.contain(TestTemplate.selectedClass);
-  //     expect(check[1].getDOMNode().className).not.to.contain(TestTemplate.selectedClass);
-  //   });
-  //   it('should mark the next item as selected when hitting the right arrow', function() {
-  //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
-  //     TestUtils.Simulate.click(check[0]);
-  //     TestUtils.Simulate.keyDown(check[0], { keyCode: KEY_CODE_RIGHT });
-  //     expect(check[0].getDOMNode().className).not.to.contain(TestTemplate.selectedClass);
-  //     expect(check[1].getDOMNode().className).to.contain(TestTemplate.selectedClass);
-  //   });
+    it('should mark the previous item as selected when hitting the left arrow', function() {
+      var view = safeRender(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[1]);
+      TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_LEFT });
+      expect(React.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
+      expect(React.findDOMNode(check[1]).className).not.to.contain(TestTemplate.selectedClass);
+    });
+    it('should mark the next item as selected when hitting the right arrow', function() {
+      var view = safeRender(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[0]);
+      TestUtils.Simulate.keyDown(check[0], { keyCode: KEY_CODE_RIGHT });
+      expect(React.findDOMNode(check[0]).className).not.to.contain(TestTemplate.selectedClass);
+      expect(React.findDOMNode(check[1]).className).to.contain(TestTemplate.selectedClass);
+    });
   //   it('should select the last item when hitting the left arrow key from the left most position of the entry field', function() {
   //     view = safeRender(<TestComponent items={items} />);
   //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
