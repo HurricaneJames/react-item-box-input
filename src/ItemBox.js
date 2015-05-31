@@ -5,7 +5,8 @@ var React = require('react')
   , ImmutablePropTypes = require('react-immutable-proptypes')
   , ItemList = require('./ItemList')
   , DefaultTemplate = require('./DefaultTemplate')
-  , ResizeDetector = require('./ResizeDetector');
+  , ResizeDetector = require('./ResizeDetector')
+  , KeyCodes = require('./KeyCodes');
 
 const TEST_AREA_STYLE = {
   position: 'absolute',
@@ -43,6 +44,10 @@ var ItemBox = React.createClass({
   componentDidUpdate: function() {
     this.resizeEntryWidth(this.props.value);
   },
+  focusEntry: function() {
+    var entry = this.refs['entry'];
+    if(entry) { React.findDOMNode(entry).focus(); }
+  },
   updateRightBoundary: function(newRightBoundary) {
     if(this.state.lastItemRightBoundary !== newRightBoundary) {
       this.setState({lastItemRightBoundary: newRightBoundary});
@@ -52,6 +57,16 @@ var ItemBox = React.createClass({
     var newWidth = this.getCorrectEntryWidth(entryText);
     if(newWidth !== this.state.width) {
       this.setState({ width: newWidth });
+    }
+  },
+  getCaretPosition: function (inputElement) {
+    if('selectionStart' in inputElement) {
+      return inputElement.selectionStart;
+    }else {
+      var selection = document.selection.createRange();
+      var selectionLength = selection.text.length;
+      selection.moveStart('character', -inputElement.value.length);
+      return selection.text.length - selectionLength;
     }
   },
   getCorrectEntryWidth: function(entryText) {
@@ -66,6 +81,15 @@ var ItemBox = React.createClass({
     node.innerHTML = text;
     return node.offsetWidth;
   },
+  onEntryKeyDown: function(e) {
+    e.stopPropagation();
+    if(e.keyCode === KeyCodes.LEFT_ARROW) {
+      var position = this.getCaretPosition(e.target);
+      if(position === 0) {
+        this.refs['itemList'].selectLast();
+      }
+    }
+  },
   onResize: function() {
     this.resizeEntryWidth(this.props.value);
   },
@@ -78,8 +102,8 @@ var ItemBox = React.createClass({
       <div>
         <ResizeDetector onResize={this.onResize} />
         <div ref="testarea" className="testarea" style={TEST_AREA_STYLE} />
-        <ItemList items={this.props.items} defaultTemplate={this.props.itemTemplate} onLastItemRightBoundaryChange={this.updateRightBoundary} />
-        <input ref="entry" type="text" value={this.props.value} onChange={this.props.onChange} style={inputStyle} />
+        <ItemList ref="itemList" items={this.props.items} defaultTemplate={this.props.itemTemplate} onLastItemRightBoundaryChange={this.updateRightBoundary} onSelectNextField={this.focusEntry} />
+        <input ref="entry" type="text" value={this.props.value} onChange={this.props.onChange} onKeyDown={this.onEntryKeyDown} style={inputStyle} />
       </div>
     );
   }

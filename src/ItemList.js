@@ -1,13 +1,10 @@
 var React = require('react')
-  , ImmutablePropTypes = require('react-immutable-proptypes');
+  , ImmutablePropTypes = require('react-immutable-proptypes')
+  , KeyCodes = require('./KeyCodes');
 
 const UL_STYLE = { listStyle: 'none', margin: 0, padding: 0, display: 'inline' };
 const LI_STYLE = { display: 'inline' };
 const NONE_SELECTED = -1;
-const KEY_CODE_LEFT = 37;
-const KEY_CODE_RIGHT = 39;
-const KEY_CODE_DELETE = 48;
-const KEY_CODE_BACKSPACE = 8;
 
 var ItemList = React.createClass({
   displayName: 'ItemList',
@@ -17,7 +14,8 @@ var ItemList = React.createClass({
       data: React.PropTypes.any.isRequired
     })).isRequired,
     defaultTemplate: React.PropTypes.func.isRequired,
-    onLastItemRightBoundaryChange: React.PropTypes.func
+    onLastItemRightBoundaryChange: React.PropTypes.func,
+    onSelectNextField: React.PropTypes.func
   },
   getInitialState: function() {
     return {
@@ -48,12 +46,17 @@ var ItemList = React.createClass({
     if(this.state.selected !== index) {
       this.setState({ selected: index });
     }
-    if(index !== NONE_SELECTED && index < this.props.items.size) {
-      this.ignoreBlur = true;
-      this.focus(this.refs['item' + index]);
-    // }else if(index > -1) {
-    //   this.focus(this.refs.entry);
+    if(index !== NONE_SELECTED) {
+      if(index < this.props.items.size) {
+        // this.ignoreBlur = true;
+        this.focus(this.refs['item' + index]);
+      }else if(this.props.onSelectNextField) {
+        this.props.onSelectNextField();
+      }
     }
+  },
+  selectLast: function() {
+    this.selectItem(this.props.items.size - 1);
   },
   selectPrevious: function() {
     if(this.state.selected !== NONE_SELECTED) { this.selectItem(this.state.selected - 1); }
@@ -76,10 +79,10 @@ var ItemList = React.createClass({
   },
   onKeyDown: function(e) {
     switch(e.keyCode) {
-      case KEY_CODE_LEFT:
+      case KeyCodes.LEFT_ARROW:
         this.selectPrevious();
         break;
-      case KEY_CODE_RIGHT:
+      case KeyCodes.RIGHT_ARROW:
         this.selectNext();
         break;
     }

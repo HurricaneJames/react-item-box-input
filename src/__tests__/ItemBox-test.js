@@ -213,21 +213,32 @@ describe('ItemBox', function() {
       expect(React.findDOMNode(check[0]).className).not.to.contain(TestTemplate.selectedClass);
       expect(React.findDOMNode(check[1]).className).to.contain(TestTemplate.selectedClass);
     });
-  //   it('should select the last item when hitting the left arrow key from the left most position of the entry field', function() {
-  //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
-  //     var entry = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
-  //     TestUtils.Simulate.click(entry);
-  //     TestUtils.Simulate.keyDown(entry, { keyCode: KEY_CODE_LEFT });
-  //     expect(check[items.size-1].getDOMNode().className).to.contain(TestTemplate.selectedClass);
-  //   });
-  //   it('should select the entry field when hitting the right arrow key from the last item', function() {
-  //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
-  //     TestUtils.Simulate.click(check[1]);
-  //     TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_RIGHT });
-  //     expect(TestUtils.findRenderedDOMComponentWithTag(view, 'input').getDOMNode()).to.be(document.activeElement);
-  //   });
+    it('should select the last item when hitting the left arrow key from the left most position of the entry field', function() {
+      var view = safeRender(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      var entry = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.click(entry);
+      TestUtils.Simulate.keyDown(entry, { keyCode: KEY_CODE_LEFT });
+      var item = React.findDOMNode(check[items.size-1]);
+      expect(item.className).to.contain(TestTemplate.selectedClass);
+      expect(item.parentNode).to.be(document.activeElement);
+    });
+    it('should mark no items as selected when hitting the right arrow while the last item is selected', function() {
+      var view = safeRender(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[1]);
+      TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_RIGHT });
+      check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.selectedClass);
+      expect(check.length).to.be(0);
+    });
+    it('should select the entry field when hitting the right arrow key from the last item', function() {
+      var view = safeRender(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[1]);
+      TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_RIGHT });
+      var inputNode = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(view, 'input'));
+      expect(inputNode).to.be(document.activeElement);
+    });
   });
 
   // describe('removing items', function() {
