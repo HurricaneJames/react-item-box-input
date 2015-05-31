@@ -30,6 +30,15 @@ function rerender(reactNode, component, newProps) {
   );
 }
 
+function getExpectedEntryWidth(viewComponent) {
+  var viewWidth = viewComponent.getDOMNode().clientWidth;
+  var itemWidth = 0;
+  var itemComponents = TestUtils.scryRenderedDOMComponentsWithClass(viewComponent, TestTemplate.templateClass);
+  itemWidth = Math.ceil(React.findDOMNode(itemComponents[itemComponents.length - 1]).getBoundingClientRect().right);
+  var remainingWidth = viewWidth - itemWidth;
+  return remainingWidth;
+}
+
 describe('ItemBox', function() {
   var TestComponent, sandbox, allowWarnings, mockOnChange, mockInput, items;
 
@@ -119,7 +128,7 @@ describe('ItemBox', function() {
       { data: { id: 2, text: 'ddd' } },
       { data: { id: 2, text: 'eee' } }
     ]);
-    var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={extraItems} />);
+    var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={extraItems} itemTemplate={TestTemplate} />);
     var itemComponents = TestUtils.scryRenderedDOMComponentsWithTag(view, 'li');
     var wrapWidth = Math.ceil(
       React.findDOMNode(itemComponents[itemComponents.length - 1]).getBoundingClientRect().right
@@ -138,24 +147,23 @@ describe('ItemBox', function() {
     expect(React.findDOMNode(check).style.width).to.be(fullWidth + 'px');
   });
 
-  // it('should set the width of the text entry point to the remaining space in the box', function() {
-  //   view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} />);
-  //   var inputWidth = TestUtils.findRenderedDOMComponentWithTag(view, 'input').getDOMNode().style.width;
-  //   expect(inputWidth).to.be(getExpectedEntryWidth(view) + 'px');
-  // });
+  it('should set the width of the text entry point to the remaining space in the box', function() {
+    var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} />);
+    var inputWidth = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(view, 'input')).style.width;
+    expect(inputWidth).to.be(getExpectedEntryWidth(view) + 'px');
+  });
 
-  // it('should resize the text entry point to respond to changing sizes', function(done) {
-  //   view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} />);
-  //   check = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
-  //   var inputWidth = check.getDOMNode().style.width;
-  //   view.getDOMNode().style.width = '500px';
-  //   view.getDOMNode().style.border = '1px solid black';
-  //   setTimeout(function() {
-  //     inputWidth = check.getDOMNode().style.width;
-  //     expect(inputWidth).to.be(getExpectedEntryWidth(view) + 'px');
-  //     done();
-  //   }, 50);
-  // });
+  it('should resize the text entry point to respond to changing sizes', function(done) {
+    var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} />);
+    var check = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+    var inputWidth = React.findDOMNode(check).style.width;
+    React.findDOMNode(view).style.width = '500px';
+    setTimeout(function() {
+      inputWidth = React.findDOMNode(check).style.width;
+      expect(inputWidth).to.be(getExpectedEntryWidth(view) + 'px');
+      done();
+    }, 50);
+  });
 
   // describe('item selection', function() {
   //   it('should not show any items as selected when the entry field has focus', function() {

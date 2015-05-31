@@ -11,11 +11,29 @@ var ItemList = React.createClass({
       template: React.PropTypes.func,
       data: React.PropTypes.any.isRequired
     })).isRequired,
-    defaultTemplate: React.PropTypes.func.isRequired
+    defaultTemplate: React.PropTypes.func.isRequired,
+    onLastItemRightBoundaryChange: React.PropTypes.func
   },
-  renderItem: function(item) {
+  componentDidMount: function() {
+    this.updateLastItemBoundary();
+  },
+  componentDidUpdate: function() {
+    this.updateLastItemBoundary();
+  },
+  updateLastItemBoundary: function() {
+    if(this.props.onLastItemRightBoundaryChange) {
+      if(this.props.items.size > 0) {
+        var lastItem = this.refs['item' + (this.props.items.size - 1)];
+        var newBoundary = Math.ceil(React.findDOMNode(lastItem).getBoundingClientRect().right);
+        this.props.onLastItemRightBoundaryChange(newBoundary);
+      }else {
+        this.props.onLastItemRightBoundaryChange(React.findDOMNode(this).getBoundingClientRect().right);
+      }
+    }
+  },
+  renderItem: function(item, index) {
     return (
-      <li key={item} style={LI_STYLE}>
+      <li key={item} style={LI_STYLE} ref={'item' + index} >
         {
           React.createElement(
             item.get('template') || this.props.defaultTemplate,
@@ -30,7 +48,7 @@ var ItemList = React.createClass({
     );
   },
   render: function() {
-    var items = this.props.items.map(item => this.renderItem(item)).toArray();
+    var items = this.props.items.map(this.renderItem).toArray();
     return (
       <ul style={UL_STYLE}>
         {
