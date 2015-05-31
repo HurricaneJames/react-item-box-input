@@ -3,6 +3,7 @@ var React = require('react')
 
 const UL_STYLE = { listStyle: 'none', margin: 0, padding: 0, display: 'inline' };
 const LI_STYLE = { display: 'inline' };
+const NONE_SELECTED = -1;
 
 var ItemList = React.createClass({
   displayName: 'ItemList',
@@ -13,6 +14,11 @@ var ItemList = React.createClass({
     })).isRequired,
     defaultTemplate: React.PropTypes.func.isRequired,
     onLastItemRightBoundaryChange: React.PropTypes.func
+  },
+  getInitialState: function() {
+    return {
+      selected: NONE_SELECTED
+    };
   },
   componentDidMount: function() {
     this.updateLastItemBoundary();
@@ -31,18 +37,57 @@ var ItemList = React.createClass({
       }
     }
   },
+  focus: function(element) {
+    if(element) { React.findDOMNode(element).focus(); }
+  },
+  selectItem: function(index) {
+    if(this.state.selected !== index) {
+      this.setState({ selected: index });
+    }
+    if(index !== NONE_SELECTED && index < this.props.items.size) {
+      this.ignoreBlur = true;
+      this.focus(this.refs['item' + index]);
+    // }else if(index > -1) {
+    //   this.focus(this.refs.entry);
+    }
+  },
+  onItemBlur: function() {
+    // there is an edge case where selecting previous/next automatically blurs before setState can run
+    // so we use a property set on this to check
+    // if(!this.ignoreBlur) {
+      // this.ignoreBlur = undefined;
+      this.selectItem(NONE_SELECTED);
+    // }
+  },
+  onItemClick: function(index, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.selectItem(index);
+  },
+  renderTemplate: function(item, index) {
+    return (
+      React.createElement(
+        item.get('template') || this.props.defaultTemplate,
+        {
+          data: item.get('data'),
+          selected: this.state.selected === index
+          // onRemove: this.onItemRemove.bind(null, index)
+        }
+      )
+    );
+  },
   renderItem: function(item, index) {
     return (
-      <li key={item} style={LI_STYLE} ref={'item' + index} >
+      <li
+        key={item}
+        ref={'item' + index}
+        style={LI_STYLE}
+        onClick={this.onItemClick.bind(null, index)}
+        onBlur={this.onItemBlur}
+        tabIndex="0"
+      >
         {
-          React.createElement(
-            item.get('template') || this.props.defaultTemplate,
-            {
-              data: item.get('data')
-              // selected: isSelected,
-              // onRemove: this.onItemRemove.bind(null, index)
-            }
-          )
+          this.renderTemplate(item, index)
         }
       </li>
     );

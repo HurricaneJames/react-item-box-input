@@ -165,71 +165,71 @@ describe('ItemBox', function() {
     }, 50);
   });
 
-  // describe('item selection', function() {
-  //   it('should not show any items as selected when the entry field has focus', function() {
-  //     view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_SELECTED_CLASS);
-  //     expect(check.length).to.be(0);
-  //   });
-  //   it('should mark an item as selected when clicked', function() {
-  //     view = TestUtils.renderIntoDocument(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
-  //     TestUtils.Simulate.click(check[0]);
-  //     expect(check[0].getDOMNode().className).to.contain(TEST_TEMPLATE_SELECTED_CLASS);
-  //   });
-  //   it('should focus on the item when clicked', function() {
-  //     view = safeRender(<TestComponent items={items} />);
-  //     var itemComponents = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
-  //     TestUtils.Simulate.click(itemComponents[0]);
-  //     expect(itemComponents[0].getDOMNode().parentNode).to.be(document.activeElement);
-  //   });
-  //   it('should select none when the focus on an item blurs', function(done) {
-  //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
-  //     TestUtils.Simulate.click(check[1]);
-  //     setTimeout(function() {
-  //       TestUtils.Simulate.blur(check[1]);
-  //       expect(TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_SELECTED_CLASS).length).to.be(0);
-  //       done();
-  //     }, 50);
-  //   });
+  describe('item selection', function() {
+    it('should not show any items as selected when the entry field has focus', function() {
+      var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.selectedClass);
+      expect(check.length).to.be(0);
+    });
+    it('should mark an item as selected when clicked', function() {
+      var view = TestUtils.renderIntoDocument(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[0]);
+      expect(React.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
+    });
+    it('should focus on the item when clicked', function() {
+      var view = safeRender(<TestComponent items={items} />);
+      var itemComponents = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(itemComponents[0]);
+      expect(React.findDOMNode(itemComponents[0]).parentNode).to.be(document.activeElement);
+    });
+    it('should select none when the focus on an item blurs', function(done) {
+      var view = safeRender(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[1]);
+      setTimeout(function() {
+        TestUtils.Simulate.blur(check[1]);
+        expect(TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.selectedClass).length).to.be(0);
+        done();
+      }, 50);
+    });
   //   it('should mark the previous item as selected when hitting the left arrow', function() {
   //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
+  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
   //     TestUtils.Simulate.click(check[1]);
   //     TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_LEFT });
-  //     expect(check[0].getDOMNode().className).to.contain(TEST_TEMPLATE_SELECTED_CLASS);
-  //     expect(check[1].getDOMNode().className).not.to.contain(TEST_TEMPLATE_SELECTED_CLASS);
+  //     expect(check[0].getDOMNode().className).to.contain(TestTemplate.selectedClass);
+  //     expect(check[1].getDOMNode().className).not.to.contain(TestTemplate.selectedClass);
   //   });
   //   it('should mark the next item as selected when hitting the right arrow', function() {
   //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
+  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
   //     TestUtils.Simulate.click(check[0]);
   //     TestUtils.Simulate.keyDown(check[0], { keyCode: KEY_CODE_RIGHT });
-  //     expect(check[0].getDOMNode().className).not.to.contain(TEST_TEMPLATE_SELECTED_CLASS);
-  //     expect(check[1].getDOMNode().className).to.contain(TEST_TEMPLATE_SELECTED_CLASS);
+  //     expect(check[0].getDOMNode().className).not.to.contain(TestTemplate.selectedClass);
+  //     expect(check[1].getDOMNode().className).to.contain(TestTemplate.selectedClass);
   //   });
   //   it('should select the last item when hitting the left arrow key from the left most position of the entry field', function() {
   //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
+  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
   //     var entry = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
   //     TestUtils.Simulate.click(entry);
   //     TestUtils.Simulate.keyDown(entry, { keyCode: KEY_CODE_LEFT });
-  //     expect(check[items.size-1].getDOMNode().className).to.contain(TEST_TEMPLATE_SELECTED_CLASS);
+  //     expect(check[items.size-1].getDOMNode().className).to.contain(TestTemplate.selectedClass);
   //   });
   //   it('should select the entry field when hitting the right arrow key from the last item', function() {
   //     view = safeRender(<TestComponent items={items} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
+  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
   //     TestUtils.Simulate.click(check[1]);
   //     TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_RIGHT });
   //     expect(TestUtils.findRenderedDOMComponentWithTag(view, 'input').getDOMNode()).to.be(document.activeElement);
   //   });
-  // });
+  });
 
   // describe('removing items', function() {
   //   it('should call onRemove with the selected item when hitting the delete keys', function() {
   //     view = safeRender(<TestComponent items={items} onRemove={mockOnChange} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
+  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
   //     TestUtils.Simulate.click(check[1]);
   //     expect(mockOnChange.called).not.to.be.ok();
   //     TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_DELETE });
@@ -240,7 +240,7 @@ describe('ItemBox', function() {
   //   });
   //   it('should call onRemove with the selected item when hitting the backspace keys', function() {
   //     view = safeRender(<TestComponent items={items} onRemove={mockOnChange} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_CLASS);
+  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
   //     TestUtils.Simulate.click(check[1]);
   //     expect(mockOnChange.called).not.to.be.ok();
   //     TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_BACKSPACE });

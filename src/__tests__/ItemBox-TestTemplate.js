@@ -30,6 +30,7 @@ function createTestTemplate(id) {
   });
 
   template.templateClass = TEST_TEMPLATE_CLASS + id;
+  template.selectedClass = TEST_TEMPLATE_SELECTED_CLASS;
 
   return template;
 }
