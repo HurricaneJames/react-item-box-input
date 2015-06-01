@@ -6,6 +6,7 @@
   "scripts": {
     "build": "./scripts/build",
     "test": "./scripts/test",
+    "test-all": "./scripts/test-all",
     "test-cov": "./scripts/test-cov",
     "prepublish": "npm run build"
   },
