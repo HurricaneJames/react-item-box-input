@@ -213,6 +213,14 @@ describe('ItemBox', function() {
       expect(React.findDOMNode(check[0]).className).not.to.contain(TestTemplate.selectedClass);
       expect(React.findDOMNode(check[1]).className).to.contain(TestTemplate.selectedClass);
     });
+    it('should keep the first item selected when hitting the left arrow on the first item', function() {
+      var view = safeRender(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[0]);
+      TestUtils.Simulate.keyDown(check[0], { keyCode: KEY_CODE_LEFT });
+      expect(React.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
+      expect(React.findDOMNode(check[0]).parentNode).to.be(document.activeElement);
+    });
     it('should select the last item when hitting the left arrow key from the left most position of the entry field', function() {
       var view = safeRender(<TestComponent items={items} />);
       var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);

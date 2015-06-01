@@ -61,7 +61,7 @@ var ItemList = React.createClass({
     this.selectItem(this.props.items.size - 1);
   },
   selectPrevious: function() {
-    if(this.state.selected !== NONE_SELECTED) { this.selectItem(this.state.selected - 1); }
+    if(this.state.selected > 0) { this.selectItem(this.state.selected - 1); }
   },
   selectNext: function() {
     if(this.state.selected <= this.props.items.size) { this.selectItem(this.state.selected + 1); }
