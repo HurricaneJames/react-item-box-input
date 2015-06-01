@@ -13,7 +13,7 @@ module.exports = function(config) {
     frameworks: ['mocha', 'browserify', 'sinon', 'source-map-support'],
 
     browserify: {
-      transform: [ 'babelify' ],
+      transform: [ ['babelify', { optional: ['runtime'] } ] ],
       extensions: [ '.js', '.jsx' ],
       debug: true
     },
