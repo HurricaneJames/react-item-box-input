@@ -31,6 +31,7 @@ function createTestTemplate(id) {
 
   template.templateClass = TEST_TEMPLATE_CLASS + id;
   template.selectedClass = TEST_TEMPLATE_SELECTED_CLASS;
+  template.deleteButtonClass = TEST_TEMPLATE_DELETE_BUTTON_CLASS;
 
   return template;
 }

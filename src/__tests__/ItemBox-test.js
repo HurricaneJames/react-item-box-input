@@ -35,7 +35,7 @@ function rerender(reactNode, component, newProps) {
 }
 
 function getExpectedEntryWidth(viewComponent) {
-  var viewWidth = viewComponent.getDOMNode().clientWidth;
+  var viewWidth = React.findDOMNode(viewComponent).clientWidth;
   var itemWidth = 0;
   var itemComponents = TestUtils.scryRenderedDOMComponentsWithClass(viewComponent, TestTemplate.templateClass);
   itemWidth = Math.ceil(React.findDOMNode(itemComponents[itemComponents.length - 1]).getBoundingClientRect().right);
@@ -223,6 +223,16 @@ describe('ItemBox', function() {
       expect(item.className).to.contain(TestTemplate.selectedClass);
       expect(item.parentNode).to.be(document.activeElement);
     });
+    it('should select the last item when hitting the backspace key from the first position of the entry field', function() {
+      var view = safeRender(<TestComponent items={items} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      var entry = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.click(entry);
+      TestUtils.Simulate.keyUp(entry, { keyCode: KEY_CODE_BACKSPACE });
+      var item = React.findDOMNode(check[items.size-1]);
+      expect(item.className).to.contain(TestTemplate.selectedClass);
+      expect(item.parentNode).to.be(document.activeElement);
+    });
     it('should mark no items as selected when hitting the right arrow while the last item is selected', function() {
       var view = safeRender(<TestComponent items={items} />);
       var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
@@ -239,39 +249,66 @@ describe('ItemBox', function() {
       var inputNode = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(view, 'input'));
       expect(inputNode).to.be(document.activeElement);
     });
+    it('should be able to move through all of the items with no problems', function() {
+      var extraItems = Immutable.fromJS([
+        { data: { id: 1, text: 'aaa' } },
+        { data: { id: 2, text: 'bbb' } },
+        { data: { id: 2, text: 'ccc' } },
+        { data: { id: 2, text: 'ddd' } },
+        { data: { id: 2, text: 'eee' } }
+      ]);
+      var view = safeRender(<TestComponent items={extraItems} itemTemplate={TestTemplate} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+
+      var selectedItem = extraItems.size - 1;
+      TestUtils.Simulate.click(check[selectedItem]);
+
+      TestUtils.Simulate.keyDown(check[selectedItem], { keyCode: KEY_CODE_LEFT });
+      expect(React.findDOMNode(check[selectedItem-1]).className).to.contain(TestTemplate.selectedClass);
+      expect(React.findDOMNode(check[selectedItem]).className).not.to.contain(TestTemplate.selectedClass);
+
+      selectedItem = selectedItem - 1;
+      TestUtils.Simulate.keyDown(check[selectedItem], { keyCode: KEY_CODE_LEFT });
+      expect(React.findDOMNode(check[selectedItem-1]).className).to.contain(TestTemplate.selectedClass);
+      expect(React.findDOMNode(check[selectedItem]).className).not.to.contain(TestTemplate.selectedClass);
+
+      TestUtils.Simulate.keyDown(check[selectedItem], { keyCode: KEY_CODE_RIGHT });
+      expect(React.findDOMNode(check[selectedItem]).className).to.contain(TestTemplate.selectedClass);
+      expect(React.findDOMNode(check[selectedItem-1]).className).not.to.contain(TestTemplate.selectedClass);
+    });
   });
 
-  // describe('removing items', function() {
-  //   it('should call onRemove with the selected item when hitting the delete keys', function() {
-  //     view = safeRender(<TestComponent items={items} onRemove={mockOnChange} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
-  //     TestUtils.Simulate.click(check[1]);
-  //     expect(mockOnChange.called).not.to.be.ok();
-  //     TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_DELETE });
-  //     expect(mockOnChange.called).not.to.be.ok();
-  //     TestUtils.Simulate.keyUp(check[1], { keyCode: KEY_CODE_DELETE });
-  //     expect(mockOnChange.called).to.be.ok();
-  //     expect(mockOnChange.args[0][0]).to.be(1);
-  //   });
-  //   it('should call onRemove with the selected item when hitting the backspace keys', function() {
-  //     view = safeRender(<TestComponent items={items} onRemove={mockOnChange} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
-  //     TestUtils.Simulate.click(check[1]);
-  //     expect(mockOnChange.called).not.to.be.ok();
-  //     TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_BACKSPACE });
-  //     expect(mockOnChange.called).not.to.be.ok();
-  //     TestUtils.Simulate.keyUp(check[1], { keyCode: KEY_CODE_BACKSPACE });
-  //     expect(mockOnChange.called).to.be.ok();
-  //     expect(mockOnChange.args[0][0]).to.be(1);
-  //   });
-  //   it('should call onRemove with the selected item when the item self reports a onRemove operation', function() {
-  //     view = TestUtils.renderIntoDocument(<TestComponent items={items} onRemove={mockOnChange} />);
-  //     check = TestUtils.scryRenderedDOMComponentsWithClass(view, TEST_TEMPLATE_DELETE_BUTTON_CLASS);
-  //     TestUtils.Simulate.click(check[1]);
-  //     expect(mockOnChange.called).to.be.ok();
-  //     expect(mockOnChange.args[0][0]).to.be(1);
-  //   });
-  // });
+  describe('removing items', function() {
+    it('should call onRemove with the selected item when hitting the delete keys', function() {
+      var view = safeRender(<TestComponent items={items} onRemove={mockOnChange} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[1]);
+      expect(mockOnChange.called).not.to.be.ok();
+      TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_DELETE });
+      expect(mockOnChange.called).not.to.be.ok();
+      TestUtils.Simulate.keyUp(check[1], { keyCode: KEY_CODE_DELETE });
+      expect(mockOnChange.called).to.be.ok();
+      expect(mockOnChange.args[0][0]).to.be(1);
+    });
+    it('should call onRemove with the selected item when hitting the backspace keys', function() {
+      var view = safeRender(<TestComponent items={items} onRemove={mockOnChange} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+      TestUtils.Simulate.click(check[1]);
+      expect(mockOnChange.called).not.to.be.ok();
+      TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_BACKSPACE });
+      expect(mockOnChange.called).not.to.be.ok();
+      TestUtils.Simulate.keyUp(check[1], { keyCode: KEY_CODE_BACKSPACE });
+      expect(mockOnChange.called).to.be.ok();
+      expect(mockOnChange.args[0][0]).to.be(1);
+    });
+    it('should call onRemove with the selected item when the item self reports a onRemove operation', function() {
+      var view = TestUtils.renderIntoDocument(<TestComponent items={items} onRemove={mockOnChange} />);
+      var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.deleteButtonClass);
+      TestUtils.Simulate.click(check[1]);
+      expect(mockOnChange.called).to.be.ok();
+      expect(mockOnChange.args[0][0]).to.be(1);
+    });
+  });
 
   // describe('triggers', function() {
   //   var TRIGGER_KEYS    = [KEY_CODE_COMMA, KEY_CODE_TAB, KEY_CODE_ESCAPE];

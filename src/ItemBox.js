@@ -23,6 +23,7 @@ var ItemBox = React.createClass({
     onChange: React.PropTypes.func,
     items: ImmutablePropTypes.list.isRequired,
     itemTemplate: React.PropTypes.func.isRequired,
+    onRemove: React.PropTypes.func,
     defaultWidth: React.PropTypes.number        // the default width (in px) of the component if it cannot be determined by the DOM
   },
   getDefaultProps: function() {
@@ -81,13 +82,22 @@ var ItemBox = React.createClass({
     node.innerHTML = text;
     return node.offsetWidth;
   },
+  keyboardSelectLastItem: function(e) {
+    var position = this.getCaretPosition(e.target);
+    if(position === 0) {
+      this.refs['itemList'].selectLast();
+    }
+  },
   onEntryKeyDown: function(e) {
     e.stopPropagation();
     if(e.keyCode === KeyCodes.LEFT_ARROW) {
-      var position = this.getCaretPosition(e.target);
-      if(position === 0) {
-        this.refs['itemList'].selectLast();
-      }
+      this.keyboardSelectLastItem(e);
+    }
+  },
+  onEntryKeyUp: function(e) {
+    e.stopPropagation();
+    if(e.keyCode === KeyCodes.BACKSPACE) {
+      this.keyboardSelectLastItem(e);
     }
   },
   onResize: function() {
@@ -102,8 +112,8 @@ var ItemBox = React.createClass({
       <div>
         <ResizeDetector onResize={this.onResize} />
         <div ref="testarea" className="testarea" style={TEST_AREA_STYLE} />
-        <ItemList ref="itemList" items={this.props.items} defaultTemplate={this.props.itemTemplate} onLastItemRightBoundaryChange={this.updateRightBoundary} onSelectNextField={this.focusEntry} />
-        <input ref="entry" type="text" value={this.props.value} onChange={this.props.onChange} onKeyDown={this.onEntryKeyDown} style={inputStyle} />
+        <ItemList ref="itemList" items={this.props.items} defaultTemplate={this.props.itemTemplate} onLastItemRightBoundaryChange={this.updateRightBoundary} onSelectNextField={this.focusEntry} onRemove={this.props.onRemove} />
+        <input ref="entry" type="text" value={this.props.value} onChange={this.props.onChange} onKeyDown={this.onEntryKeyDown} onKeyUp={this.onEntryKeyUp} style={inputStyle} />
       </div>
     );
   }

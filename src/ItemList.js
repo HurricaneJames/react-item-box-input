@@ -15,7 +15,8 @@ var ItemList = React.createClass({
     })).isRequired,
     defaultTemplate: React.PropTypes.func.isRequired,
     onLastItemRightBoundaryChange: React.PropTypes.func,
-    onSelectNextField: React.PropTypes.func
+    onSelectNextField: React.PropTypes.func,
+    onRemove: React.PropTypes.func
   },
   getInitialState: function() {
     return {
@@ -26,6 +27,7 @@ var ItemList = React.createClass({
     this.updateLastItemBoundary();
   },
   componentDidUpdate: function() {
+    this.ignoreBlur = undefined;
     this.updateLastItemBoundary();
   },
   updateLastItemBoundary: function() {
@@ -48,7 +50,7 @@ var ItemList = React.createClass({
     }
     if(index !== NONE_SELECTED) {
       if(index < this.props.items.size) {
-        // this.ignoreBlur = true;
+        this.ignoreBlur = true;
         this.focus(this.refs['item' + index]);
       }else if(this.props.onSelectNextField) {
         this.props.onSelectNextField();
@@ -65,12 +67,11 @@ var ItemList = React.createClass({
     if(this.state.selected <= this.props.items.size) { this.selectItem(this.state.selected + 1); }
   },
   onItemBlur: function() {
-    // there is an edge case where selecting previous/next automatically blurs before setState can run
-    // so we use a property set on this to check
-    // if(!this.ignoreBlur) {
-      // this.ignoreBlur = undefined;
+    if(!this.ignoreBlur) {
       this.selectItem(NONE_SELECTED);
-    // }
+    }else {
+      this.ignoreBlur = false;
+    }
   },
   onItemClick: function(index, e) {
     e.preventDefault();
@@ -87,14 +88,27 @@ var ItemList = React.createClass({
         break;
     }
   },
+  onKeyUp: function(e) {
+    switch(e.keyCode) {
+      case KeyCodes.DELETE:
+      case KeyCodes.BACKSPACE:
+        if(this.props.onRemove && this.state.selected > -1 && this.state.selected < this.props.items.size) {
+          this.props.onRemove(this.state.selected);
+        }
+        break;
+    }
+  },
+  onRemoveItem: function(index) {
+    if(this.props.onRemove) { this.props.onRemove(index); }
+  },
   renderTemplate: function(item, index) {
     return (
       React.createElement(
         item.get('template') || this.props.defaultTemplate,
         {
           data: item.get('data'),
-          selected: this.state.selected === index
-          // onRemove: this.onItemRemove.bind(null, index)
+          selected: this.state.selected === index,
+          onRemove: this.onRemoveItem.bind(null, index)
         }
       )
     );
@@ -102,7 +116,7 @@ var ItemList = React.createClass({
   renderItem: function(item, index) {
     return (
       <li
-        key={item}
+        key={index}
         ref={'item' + index}
         style={LI_STYLE}
         onClick={this.onItemClick.bind(null, index)}
@@ -118,7 +132,7 @@ var ItemList = React.createClass({
   render: function() {
     var items = this.props.items.map(this.renderItem).toArray();
     return (
-      <ul style={UL_STYLE} onKeyDown={this.onKeyDown}>
+      <ul style={UL_STYLE} onKeyDown={this.onKeyDown} onKeyUp={this.onKeyUp}>
         {
           items
         }
