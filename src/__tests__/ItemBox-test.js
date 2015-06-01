@@ -12,6 +12,10 @@ const KEY_CODE_LEFT = 37;
 const KEY_CODE_RIGHT = 39;
 const KEY_CODE_DELETE = 48;
 const KEY_CODE_BACKSPACE = 8;
+const KEY_CODE_COMMA  = 188;
+const KEY_CODE_TAB    = 9;
+const KEY_CODE_ESCAPE = 27;
+
 const DEFAULT_ITEMS = Immutable.fromJS([
   { template: TestTemplate, data: { id: 1, text: 'aaa' } },
   { template: TestTemplate, data: { id: 2, text: 'bbb' } }
@@ -318,45 +322,132 @@ describe('ItemBox', function() {
     });
   });
 
-  // describe('triggers', function() {
-  //   var TRIGGER_KEYS    = [KEY_CODE_COMMA, KEY_CODE_TAB, KEY_CODE_ESCAPE];
-  //   it('should call onTrigger with the trigger and the current text, including the trigger ' +
-  //      'if updating the value based on the change, when the user types a trigger key', function() {
-  //     var value = 'aaa';
-  //     var cycleValue = function(e) {
-  //       view.setProps({
-  //         value: e.target.value,
-  //         onChange: cycleValue,
-  //         items: items,
-  //         triggerKeys: TRIGGER_KEYS,
-  //         onTrigger: mockOnChange
-  //       });
-  //     };
-  //     view = TestUtils.renderIntoDocument(<TestComponent value={value} onChange={cycleValue} items={items} triggerKeys={TRIGGER_KEYS} onTrigger={mockOnChange} />);
-  //     check = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
-  //     TestUtils.Simulate.change(check, { target: { value: value + ',' } });
-  //     TestUtils.Simulate.keyUp(check, { keyCode: KEY_CODE_COMMA });
-  //     expect(mockOnChange.called).to.be.ok();
-  //     expect(mockOnChange.args[0][0]).to.be(KEY_CODE_COMMA);
-  //     expect(mockOnChange.args[0][1]).to.be(value + ',');
-  //   });
-  //   it('should call onTrigger with the trigger and the current text, not including the trigger ' +
-  //      'when the value is locked (no onChange callback), when the user types a trigger key', function() {
-  //     var value = 'aaa';
-  //     view = TestUtils.renderIntoDocument(<TestComponent value={value} items={items} triggerKeys={TRIGGER_KEYS} onTrigger={mockOnChange} />);
-  //     check = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
-  //     TestUtils.Simulate.keyUp(check, { keyCode: KEY_CODE_COMMA });
-  //     expect(mockOnChange.called).to.be.ok();
-  //     expect(mockOnChange.args[0][0]).to.be(KEY_CODE_COMMA);
-  //     expect(mockOnChange.args[0][1]).to.be(value);
-  //   });
-  // });
+  describe('input level event handlers', function() {
+    it('should support onKeyUp', function() {
+      var mockKeyUp = sinon.spy();
+      var view = TestUtils.renderIntoDocument(<TestComponent value="" onChange={mockOnChange} items={items} onKeyUp={mockKeyUp} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.keyUp(input, { keyCode: KEY_CODE_COMMA });
+      expect(mockKeyUp.called).to.be.ok();
+    });
+    it('should support onKeyDown', function() {
+      var mockKeyDown = sinon.spy();
+      var view = TestUtils.renderIntoDocument(<TestComponent value="" onChange={mockOnChange} items={items} onKeyDown={mockKeyDown} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.keyDown(input, { keyCode: KEY_CODE_COMMA });
+      expect(mockKeyDown.called).to.be.ok();
+    });
+    it('should support onCopy', function() {
+      var someData = 'clipboard stuff';
+      var mockOnCopy = sinon.spy();
+      var view = TestUtils.renderIntoDocument(<TestComponent value="" onChange={mockOnChange} items={items} onCopy={mockOnCopy} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.copy(input, { clipboardData: someData });
+      expect(mockOnCopy.called).to.be.ok();
+      expect(mockOnCopy.args[0][0].clipboardData).to.be(someData);
+    });
+    it('should support onCut', function() {
+      var someData = 'clipboard stuff';
+      var mockOnCut = sinon.spy();
+      var view = TestUtils.renderIntoDocument(<TestComponent value="" onChange={mockOnChange} items={items} onCut={mockOnCut} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.cut(input, { clipboardData: someData });
+      expect(mockOnCut.called).to.be.ok();
+      expect(mockOnCut.args[0][0].clipboardData).to.be(someData);
+    });
+    it('should support onPaste', function() {
+      var someData = 'clipboard stuff';
+      var mockOnPaste = sinon.spy();
+      var view = TestUtils.renderIntoDocument(<TestComponent value="" onChange={mockOnChange} items={items} onPaste={mockOnPaste} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.paste(input, { clipboardData: someData });
+      expect(mockOnPaste.called).to.be.ok();
+      expect(mockOnPaste.args[0][0].clipboardData).to.be(someData);
+    });
+    it('should support onInputFocus', function() {
+      var mockOnFocus = sinon.spy();
+      var view = TestUtils.renderIntoDocument(<TestComponent value="" onChange={mockOnChange} items={items} onInputFocus={mockOnFocus} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.focus(input);
+      expect(mockOnFocus.called).to.be.ok();
+    });
+    it('should support onInputBlur', function() {
+      var mockOnBlur = sinon.spy();
+      var view = TestUtils.renderIntoDocument(<TestComponent value="" onChange={mockOnChange} items={items} onInputBlur={mockOnBlur} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      TestUtils.Simulate.blur(input);
+      expect(mockOnBlur.called).to.be.ok();
+    });
+  });
 
-  // // it('should default the item template to a template that renders item.template(item) or toString if no template property is on the item');
-  // // describe("Future Features", function() {
-  // //   it('should allow multi-select (big new feature to implement)');
-  // //   it('should allow items to be re-arranged by drag-and-drop');
-  // //   it('should copy the item.toCopy value to the clipboard for any selected items when using system copy/paste shortcuts');
-  // //   it('should have some specific classNames on certain elements, maybe even the option to specify what they are');
-  // // });
+  describe('component level event handlers', function() {
+    it('should support onFocus from nothing to the input element', function() {
+      var mockEventHandler = sinon.spy();
+      var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} onFocus={mockEventHandler} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      var itemComponents = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
+
+      TestUtils.Simulate.focus(input);
+      expect(mockEventHandler.called).to.be.ok();
+
+      TestUtils.Simulate.click(itemComponents[0]);
+      expect(mockEventHandler.calledTwice).not.to.be.ok();
+
+      TestUtils.Simulate.focus(input);
+      expect(mockEventHandler.calledTwice).not.to.be.ok();
+    });
+    it('should support onFocus from nothing to the item list elements', function() {
+      var mockEventHandler = sinon.spy();
+      var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} onFocus={mockEventHandler} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      var itemComponents = TestUtils.scryRenderedDOMComponentsWithTag(view, 'li');
+
+      TestUtils.Simulate.click(itemComponents[0]);
+      expect(mockEventHandler.called).to.be.ok();
+
+      TestUtils.Simulate.click(itemComponents[1]);
+      expect(mockEventHandler.calledTwice).not.to.be.ok();
+
+      React.findDOMNode(input).focus();
+      expect(mockEventHandler.calledTwice).not.to.be.ok();
+    });
+    it('should support onBlur', function(done) {
+      var mockEventHandler = sinon.spy();
+      var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} onBlur={mockEventHandler} />);
+      var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
+      var itemComponents = TestUtils.scryRenderedDOMComponentsWithTag(view, 'li');
+
+      React.findDOMNode(itemComponents[0]).click();
+      setTimeout(function() {
+        React.findDOMNode(input).focus();
+
+        setTimeout(function() {
+          expect(mockEventHandler.called).not.to.be.ok();
+          React.findDOMNode(input).blur();
+
+          setTimeout(function() {
+            expect(mockEventHandler.calledOnce).to.be.ok();
+
+            React.findDOMNode(itemComponents[0]).click();
+
+            setTimeout(function() {
+              React.findDOMNode(itemComponents[0]).blur();
+
+              setTimeout(function() {
+                expect(mockEventHandler.calledTwice).to.be.ok();
+                done();
+              }, 10);
+            }, 10);
+          }, 10);
+        }, 10);
+      }, 10);
+    });
+  });
+
+  // describe("Future Features", function() {
+  //   it('should allow multi-select (big new feature to implement)');
+  //   it('should allow items to be re-arranged by drag-and-drop');
+  //   it('should copy the item.toCopy value to the clipboard for any selected items when using system copy/paste shortcuts');
+  //   it('should have some specific classNames on certain elements, maybe even the option to specify what they are');
+  // });
 });

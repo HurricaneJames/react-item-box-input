@@ -24,7 +24,16 @@ var ItemBox = React.createClass({
     items: ImmutablePropTypes.list.isRequired,
     itemTemplate: React.PropTypes.func.isRequired,
     onRemove: React.PropTypes.func,
-    defaultWidth: React.PropTypes.number        // the default width (in px) of the component if it cannot be determined by the DOM
+    defaultWidth: React.PropTypes.number,       // the default width (in px) of the component if it cannot be determined by the DOM
+    onKeyUp: React.PropTypes.func,
+    onKeyDown: React.PropTypes.func,
+    onCopy: React.PropTypes.func,
+    onCut: React.PropTypes.func,
+    onPaste: React.PropTypes.func,
+    onInputFocus: React.PropTypes.func,
+    onInputBlur: React.PropTypes.func,
+    onFocus: React.PropTypes.func,
+    onBlur: React.PropTypes.func
   },
   getDefaultProps: function() {
     return {
@@ -36,7 +45,8 @@ var ItemBox = React.createClass({
   getInitialState: function() {
     return {
       width: '1em',
-      lastItemRightBoundary: 0
+      lastItemRightBoundary: 0,
+      focus: false
     };
   },
   componentDidMount: function() {
@@ -44,10 +54,6 @@ var ItemBox = React.createClass({
   },
   componentDidUpdate: function() {
     this.resizeEntryWidth(this.props.value);
-  },
-  focusEntry: function() {
-    var entry = this.refs['entry'];
-    if(entry) { React.findDOMNode(entry).focus(); }
   },
   updateRightBoundary: function(newRightBoundary) {
     if(this.state.lastItemRightBoundary !== newRightBoundary) {
@@ -88,17 +94,65 @@ var ItemBox = React.createClass({
       this.refs['itemList'].selectLast();
     }
   },
+  checkComponentFocus: function(e) {
+    if(!this.state.focused) {
+      if(this.props.onFocus) { this.props.onFocus(e); }
+      this.setState({ focused: true });
+    }
+  },
+  triggerComponentBlur: function(e) {
+    if(this.state.focused) {
+      if(this.props.onBlur) { this.props.onBlur(e); }
+      this.setState({ focused: false });
+    }
+  },
   onEntryKeyDown: function(e) {
     e.stopPropagation();
     if(e.keyCode === KeyCodes.LEFT_ARROW) {
       this.keyboardSelectLastItem(e);
     }
+    if(this.props.onKeyDown) { this.props.onKeyDown(e); }
   },
   onEntryKeyUp: function(e) {
     e.stopPropagation();
     if(e.keyCode === KeyCodes.BACKSPACE) {
       this.keyboardSelectLastItem(e);
     }
+    if(this.props.onKeyUp) { this.props.onKeyUp(e); }
+  },
+  onInputFocus: function(e) {
+    if(this.props.onInputFocus) { this.props.onInputFocus(e); }
+    this.ignoreInputBlur = false;
+    this.ignoreListItemBlur = true;
+    this.checkComponentFocus(e);
+  },
+  handleInputBlur: function() {
+    if(!this.ignoreInputBlur) {
+      this.triggerComponentBlur();
+    }
+    this.ignoreInputBlur = false;
+  },
+  onInputBlur: function(e) {
+    if(this.props.onInputBlur) { this.props.onInputBlur(e); }
+    setTimeout(this.handleInputBlur, 0);
+  },
+  onItemListFocus: function(e) {
+    this.ignoreInputBlur = true;
+    this.ignoreListItemBlur = false;
+    this.checkComponentFocus(e);
+  },
+  handleListItemBlur: function() {
+    if(!this.ignoreListItemBlur) {
+      this.triggerComponentBlur();
+    }
+    this.ignoreListItemBlur = false;
+  },
+  onItemListBlur: function() {
+    setTimeout(this.handleListItemBlur, 0);
+  },
+  onItemListSelectNextField: function() {
+    var entry = this.refs['entry'];
+    if(entry) { React.findDOMNode(entry).focus(); }
   },
   onResize: function() {
     this.resizeEntryWidth(this.props.value);
@@ -112,8 +166,30 @@ var ItemBox = React.createClass({
       <div>
         <ResizeDetector onResize={this.onResize} />
         <div ref="testarea" className="testarea" style={TEST_AREA_STYLE} />
-        <ItemList ref="itemList" items={this.props.items} defaultTemplate={this.props.itemTemplate} onLastItemRightBoundaryChange={this.updateRightBoundary} onSelectNextField={this.focusEntry} onRemove={this.props.onRemove} />
-        <input ref="entry" type="text" value={this.props.value} onChange={this.props.onChange} onKeyDown={this.onEntryKeyDown} onKeyUp={this.onEntryKeyUp} style={inputStyle} />
+        <ItemList
+          ref="itemList"
+          items={this.props.items}
+          defaultTemplate={this.props.itemTemplate}
+          onLastItemRightBoundaryChange={this.updateRightBoundary}
+          onSelectNextField={this.onItemListSelectNextField}
+          onRemove={this.props.onRemove}
+          onFocus={this.onItemListFocus}
+          onBlur={this.onItemListBlur}
+        />
+        <input
+          ref="entry"
+          type="text"
+          value={this.props.value}
+          onChange={this.props.onChange}
+          onKeyDown={this.onEntryKeyDown}
+          onKeyUp={this.onEntryKeyUp}
+          style={inputStyle}
+          onCopy={this.props.onCopy}
+          onCut={this.props.onCut}
+          onPaste={this.props.onPaste}
+          onFocus={this.onInputFocus}
+          onBlur={this.onInputBlur}
+        />
       </div>
     );
   }

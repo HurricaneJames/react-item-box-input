@@ -16,11 +16,14 @@ var ItemList = React.createClass({
     defaultTemplate: React.PropTypes.func.isRequired,
     onLastItemRightBoundaryChange: React.PropTypes.func,
     onSelectNextField: React.PropTypes.func,
-    onRemove: React.PropTypes.func
+    onRemove: React.PropTypes.func,
+    onFocus: React.PropTypes.func,
+    onBlur: React.PropTypes.func
   },
   getInitialState: function() {
     return {
-      selected: NONE_SELECTED
+      selected: NONE_SELECTED,
+      focused: false
     };
   },
   componentDidMount: function() {
@@ -41,8 +44,21 @@ var ItemList = React.createClass({
       }
     }
   },
+  checkComponentFocus: function(e) {
+    if(!this.state.focused) {
+      if(this.props.onFocus) { this.props.onFocus(e); }
+      this.setState({ focused: true });
+    }
+  },
+  triggerBlur: function() {
+    if(this.state.focused) {
+      if(this.props.onBlur) { this.props.onBlur({ target: React.findDOMNode(this) }); }
+      this.setState({ focused: false });
+    }
+  },
   focus: function(element) {
     if(element) { React.findDOMNode(element).focus(); }
+    this.checkComponentFocus({ target: element });
   },
   selectItem: function(index) {
     if(this.state.selected !== index) {
@@ -54,7 +70,10 @@ var ItemList = React.createClass({
         this.focus(this.refs['item' + index]);
       }else if(this.props.onSelectNextField) {
         this.props.onSelectNextField();
+        this.triggerBlur();
       }
+    }else {
+      this.triggerBlur();
     }
   },
   selectLast: function() {
