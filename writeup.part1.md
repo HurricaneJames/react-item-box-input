@@ -230,4 +230,4 @@ This tells karma to run a single time using Firefox. If you prefer Chrome, as I 
 
 ## Conclusion
 
-That is it for this part of the series. At this point you should have karma setup to run mocha based tests in the 'src/__tests__' directory via npm test. The next article will walk through our initial requirements and building out most of them.
+That is it for this part of the series. At this point you should have karma setup to run mocha based tests in the '`src/__tests__`' directory via npm test. The next article will walk through our initial requirements and building out most of them.
