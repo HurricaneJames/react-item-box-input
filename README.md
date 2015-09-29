@@ -27,6 +27,8 @@ The text entry is done with an input element. Whenever the user types, it is pas
 
 ## Changelog
 
+2.0.0 updated to work with React 0.14.0-rc1
+
 1.1.1 fixed to work in environments that lack browser layout abilities (tests/isomorphic).
   - added a `defaultWidth` prop that will specify the width of the container for the item list when it cannot be determined from the browser
 

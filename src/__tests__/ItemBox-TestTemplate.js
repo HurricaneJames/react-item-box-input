@@ -10,7 +10,7 @@ function createTestTemplate(id) {
   var template = React.createClass({
     displayName: 'TestTemplate' + id,
     propTypes: {
-      data: ImmutablePropTypes.shape({
+      data: ImmutablePropTypes.contains({
         text: React.PropTypes.string
       }),
       selected: React.PropTypes.bool,

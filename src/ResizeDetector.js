@@ -13,12 +13,12 @@ var ResizeDetector = React.createClass({
     onResize: React.PropTypes.func.isRequired
   },
   componentDidMount: function() {
-    var document = this.refs.iframe.getDOMNode().contentDocument;
-    document && (document.defaultView || document.parentWindow).addEventListener('resize', this.handleResize);
+    var document = this.refs.iframe.contentDocument;
+    if(document) (document.defaultView || document.parentWindow).addEventListener('resize', this.handleResize);
   },
   componentWillUnmount: function() {
-    var document = this.refs.iframe.getDOMNode().contentDocument;
-    document && (document.defaultView || document.parentWindow).removeEventListener('resize', this.handleResize);
+    var document = this.refs.iframe.contentDocument;
+    if(document) (document.defaultView || document.parentWindow).removeEventListener('resize', this.handleResize);
   },
   handleResize: function() {
     this.props.onResize();

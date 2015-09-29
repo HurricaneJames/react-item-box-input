@@ -1,5 +1,6 @@
-var React = require('react/addons');
-var TestUtils = React.addons.TestUtils;
+var React = require('react');
+var ReactDOM = require('react-dom');
+var TestUtils = require('react-addons-test-utils');
 var Immutable = require('immutable');
 var sinon = require('sinon');
 var expect = require('expect.js');
@@ -26,23 +27,23 @@ function safeRender(element) {
   var elem = document.createElement('div');
   elem.className = 'saferender test_' + _safeRenderCount++;
   document.body.appendChild(elem);
-  return React.render(element, elem);
+  return ReactDOM.render(element, elem);
 }
 
 function rerender(reactNode, component, newProps) {
   return (
-    React.render(
+    ReactDOM.render(
       React.createElement(component, newProps),
-      React.findDOMNode(reactNode).parentNode
+      ReactDOM.findDOMNode(reactNode).parentNode
     )
   );
 }
 
 function getExpectedEntryWidth(viewComponent) {
-  var viewWidth = React.findDOMNode(viewComponent).clientWidth;
+  var viewWidth = ReactDOM.findDOMNode(viewComponent).clientWidth;
   var itemWidth = 0;
   var itemComponents = TestUtils.scryRenderedDOMComponentsWithClass(viewComponent, TestTemplate.templateClass);
-  itemWidth = Math.ceil(React.findDOMNode(itemComponents[itemComponents.length - 1]).getBoundingClientRect().right);
+  itemWidth = Math.ceil(ReactDOM.findDOMNode(itemComponents[itemComponents.length - 1]).getBoundingClientRect().right);
   var remainingWidth = viewWidth - itemWidth;
   return remainingWidth;
 }
@@ -70,7 +71,7 @@ describe('ItemBox', function() {
     var view = TestUtils.renderIntoDocument(<TestComponent value={value} onChange={mockOnChange} />);
     var check = TestUtils.scryRenderedDOMComponentsWithTag(view, 'input');
     expect(check.length).to.be(1);
-    expect(React.findDOMNode(check[0]).value).to.be(value);
+    expect(ReactDOM.findDOMNode(check[0]).value).to.be(value);
   });
 
   it('should call onChange when the user changes the entry value', function() {
@@ -80,7 +81,7 @@ describe('ItemBox', function() {
 
     TestUtils.Simulate.change(check[0], { target: { value: 'aaa' } });
 
-    expect(React.findDOMNode(check[0]).value).to.be(value);
+    expect(ReactDOM.findDOMNode(check[0]).value).to.be(value);
     expect(mockOnChange.called).to.be.ok();
     expect(mockOnChange.args[0][0].target.value).to.be('aaa');
   });
@@ -93,7 +94,7 @@ describe('ItemBox', function() {
     var view = safeRender(<TestComponent value="" items={itemsWithoutTemplates} />);
     var check = TestUtils.scryRenderedDOMComponentsWithClass(view, 'item');
     expect(check.length).to.be(2);
-    expect(React.findDOMNode(check[0]).textContent).to.contain(itemsWithoutTemplates.getIn([0, 'data', 'text']));
+    expect(ReactDOM.findDOMNode(check[0]).textContent).to.contain(itemsWithoutTemplates.getIn([0, 'data', 'text']));
   });
 
   it('should render each item, in order, with the itemTemplate prop', function() {
@@ -101,7 +102,7 @@ describe('ItemBox', function() {
     var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
     expect(check.length).to.be(2);
     for(var i = 0; i < check.length; i++) {
-      expect(React.findDOMNode(check[i]).textContent).to.be(items.getIn([i, 'data', 'text']));
+      expect(ReactDOM.findDOMNode(check[i]).textContent).to.be(items.getIn([i, 'data', 'text']));
     }
   });
 
@@ -120,12 +121,12 @@ describe('ItemBox', function() {
     var check = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
 
     var itemComponents = TestUtils.scryRenderedDOMComponentsWithTag(view, 'li');
-    var expectedOffsetTop = React.findDOMNode(itemComponents[0]).offsetTop;
+    var expectedOffsetTop = ReactDOM.findDOMNode(itemComponents[0]).offsetTop;
 
     // this is a little bit fuzzy because some browsers offset the input differently
     // in practice, I have found that +/- 4 is pretty close without entering the wrong line territory
-    expect(React.findDOMNode(check).offsetTop).to.be.within(expectedOffsetTop - 4, expectedOffsetTop + 4);
-    expect(React.findDOMNode(check).style.width).not.to.be(0);
+    expect(ReactDOM.findDOMNode(check).offsetTop).to.be.within(expectedOffsetTop - 4, expectedOffsetTop + 4);
+    expect(ReactDOM.findDOMNode(check).style.width).not.to.be(0);
   });
 
   it('should move the entry point to the next line if the text string is too long for the remaining space', function() {
@@ -139,35 +140,35 @@ describe('ItemBox', function() {
     var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={extraItems} itemTemplate={TestTemplate} />);
     var itemComponents = TestUtils.scryRenderedDOMComponentsWithTag(view, 'li');
     var wrapWidth = Math.ceil(
-      React.findDOMNode(itemComponents[itemComponents.length - 1]).getBoundingClientRect().right
+      ReactDOM.findDOMNode(itemComponents[itemComponents.length - 1]).getBoundingClientRect().right
     );
-    React.findDOMNode(view).parentNode.style.width = '' + (wrapWidth + 80) + 'px';
+    ReactDOM.findDOMNode(view).parentNode.style.width = '' + (wrapWidth + 80) + 'px';
     var check = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
     rerender(
       view,
       TestComponent,
       {value: 'xyzzyxyzzyxyzzyxyzzyxyzzy', onChange: mockOnChange, items: extraItems, itemTemplate: TestTemplate }
     );
-    expect(React.findDOMNode(check).offsetTop).to.be.greaterThan(React.findDOMNode(itemComponents[0]).offsetTop + 4);
+    expect(ReactDOM.findDOMNode(check).offsetTop).to.be.greaterThan(ReactDOM.findDOMNode(itemComponents[0]).offsetTop + 4);
 
     // the input should map to the full width of new line
-    var fullWidth = React.findDOMNode(view).clientWidth;
-    expect(React.findDOMNode(check).style.width).to.be(fullWidth + 'px');
+    var fullWidth = ReactDOM.findDOMNode(view).clientWidth;
+    expect(ReactDOM.findDOMNode(check).style.width).to.be(fullWidth + 'px');
   });
 
   it('should set the width of the text entry point to the remaining space in the box', function() {
     var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} />);
-    var inputWidth = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(view, 'input')).style.width;
+    var inputWidth = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(view, 'input')).style.width;
     expect(inputWidth).to.be(getExpectedEntryWidth(view) + 'px');
   });
 
   it('should resize the text entry point to respond to changing sizes', function(done) {
     var view = safeRender(<TestComponent value="" onChange={mockOnChange} items={items} />);
     var check = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
-    var inputWidth = React.findDOMNode(check).style.width;
-    React.findDOMNode(view).style.width = '500px';
+    var inputWidth = ReactDOM.findDOMNode(check).style.width;
+    ReactDOM.findDOMNode(view).style.width = '500px';
     setTimeout(function() {
-      inputWidth = React.findDOMNode(check).style.width;
+      inputWidth = ReactDOM.findDOMNode(check).style.width;
       expect(inputWidth).to.be(getExpectedEntryWidth(view) + 'px');
       done();
     }, 50);
@@ -183,13 +184,13 @@ describe('ItemBox', function() {
       var view = TestUtils.renderIntoDocument(<TestComponent items={items} />);
       var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
       TestUtils.Simulate.click(check[0]);
-      expect(React.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
     });
     it('should focus on the item when clicked', function() {
       var view = safeRender(<TestComponent items={items} />);
       var itemComponents = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
       TestUtils.Simulate.click(itemComponents[0]);
-      expect(React.findDOMNode(itemComponents[0]).parentNode).to.be(document.activeElement);
+      expect(ReactDOM.findDOMNode(itemComponents[0]).parentNode).to.be(document.activeElement);
     });
     it('should select none when the focus on an item blurs', function(done) {
       var view = safeRender(<TestComponent items={items} />);
@@ -206,24 +207,24 @@ describe('ItemBox', function() {
       var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
       TestUtils.Simulate.click(check[1]);
       TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_LEFT });
-      expect(React.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
-      expect(React.findDOMNode(check[1]).className).not.to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[1]).className).not.to.contain(TestTemplate.selectedClass);
     });
     it('should mark the next item as selected when hitting the right arrow', function() {
       var view = safeRender(<TestComponent items={items} />);
       var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
       TestUtils.Simulate.click(check[0]);
       TestUtils.Simulate.keyDown(check[0], { keyCode: KEY_CODE_RIGHT });
-      expect(React.findDOMNode(check[0]).className).not.to.contain(TestTemplate.selectedClass);
-      expect(React.findDOMNode(check[1]).className).to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[0]).className).not.to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[1]).className).to.contain(TestTemplate.selectedClass);
     });
     it('should keep the first item selected when hitting the left arrow on the first item', function() {
       var view = safeRender(<TestComponent items={items} />);
       var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
       TestUtils.Simulate.click(check[0]);
       TestUtils.Simulate.keyDown(check[0], { keyCode: KEY_CODE_LEFT });
-      expect(React.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
-      expect(React.findDOMNode(check[0]).parentNode).to.be(document.activeElement);
+      expect(ReactDOM.findDOMNode(check[0]).className).to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[0]).parentNode).to.be(document.activeElement);
     });
     it('should select the last item when hitting the left arrow key from the left most position of the entry field', function() {
       var view = safeRender(<TestComponent items={items} />);
@@ -231,7 +232,7 @@ describe('ItemBox', function() {
       var entry = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
       TestUtils.Simulate.click(entry);
       TestUtils.Simulate.keyDown(entry, { keyCode: KEY_CODE_LEFT });
-      var item = React.findDOMNode(check[items.size-1]);
+      var item = ReactDOM.findDOMNode(check[items.size-1]);
       expect(item.className).to.contain(TestTemplate.selectedClass);
       expect(item.parentNode).to.be(document.activeElement);
     });
@@ -241,7 +242,7 @@ describe('ItemBox', function() {
       var entry = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
       TestUtils.Simulate.click(entry);
       TestUtils.Simulate.keyUp(entry, { keyCode: KEY_CODE_BACKSPACE });
-      var item = React.findDOMNode(check[items.size-1]);
+      var item = ReactDOM.findDOMNode(check[items.size-1]);
       expect(item.className).to.contain(TestTemplate.selectedClass);
       expect(item.parentNode).to.be(document.activeElement);
     });
@@ -258,7 +259,7 @@ describe('ItemBox', function() {
       var check = TestUtils.scryRenderedDOMComponentsWithClass(view, TestTemplate.templateClass);
       TestUtils.Simulate.click(check[1]);
       TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_RIGHT });
-      var inputNode = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(view, 'input'));
+      var inputNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(view, 'input'));
       expect(inputNode).to.be(document.activeElement);
     });
     it('should be able to move through all of the items with no problems', function() {
@@ -276,17 +277,17 @@ describe('ItemBox', function() {
       TestUtils.Simulate.click(check[selectedItem]);
 
       TestUtils.Simulate.keyDown(check[selectedItem], { keyCode: KEY_CODE_LEFT });
-      expect(React.findDOMNode(check[selectedItem-1]).className).to.contain(TestTemplate.selectedClass);
-      expect(React.findDOMNode(check[selectedItem]).className).not.to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[selectedItem-1]).className).to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[selectedItem]).className).not.to.contain(TestTemplate.selectedClass);
 
       selectedItem = selectedItem - 1;
       TestUtils.Simulate.keyDown(check[selectedItem], { keyCode: KEY_CODE_LEFT });
-      expect(React.findDOMNode(check[selectedItem-1]).className).to.contain(TestTemplate.selectedClass);
-      expect(React.findDOMNode(check[selectedItem]).className).not.to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[selectedItem-1]).className).to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[selectedItem]).className).not.to.contain(TestTemplate.selectedClass);
 
       TestUtils.Simulate.keyDown(check[selectedItem], { keyCode: KEY_CODE_RIGHT });
-      expect(React.findDOMNode(check[selectedItem]).className).to.contain(TestTemplate.selectedClass);
-      expect(React.findDOMNode(check[selectedItem-1]).className).not.to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[selectedItem]).className).to.contain(TestTemplate.selectedClass);
+      expect(ReactDOM.findDOMNode(check[selectedItem-1]).className).not.to.contain(TestTemplate.selectedClass);
     });
   });
 
@@ -408,7 +409,7 @@ describe('ItemBox', function() {
       TestUtils.Simulate.click(itemComponents[1]);
       expect(mockEventHandler.calledTwice).not.to.be.ok();
 
-      React.findDOMNode(input).focus();
+      ReactDOM.findDOMNode(input).focus();
       expect(mockEventHandler.calledTwice).not.to.be.ok();
     });
     it('should support onBlur', function(done) {
@@ -417,21 +418,21 @@ describe('ItemBox', function() {
       var input = TestUtils.findRenderedDOMComponentWithTag(view, 'input');
       var itemComponents = TestUtils.scryRenderedDOMComponentsWithTag(view, 'li');
 
-      React.findDOMNode(itemComponents[0]).click();
+      ReactDOM.findDOMNode(itemComponents[0]).click();
       setTimeout(function() {
-        React.findDOMNode(input).focus();
+        ReactDOM.findDOMNode(input).focus();
 
         setTimeout(function() {
           expect(mockEventHandler.called).not.to.be.ok();
-          React.findDOMNode(input).blur();
+          ReactDOM.findDOMNode(input).blur();
 
           setTimeout(function() {
             expect(mockEventHandler.calledOnce).to.be.ok();
 
-            React.findDOMNode(itemComponents[0]).click();
+            ReactDOM.findDOMNode(itemComponents[0]).click();
 
             setTimeout(function() {
-              React.findDOMNode(itemComponents[0]).blur();
+              ReactDOM.findDOMNode(itemComponents[0]).blur();
 
               setTimeout(function() {
                 expect(mockEventHandler.calledTwice).to.be.ok();

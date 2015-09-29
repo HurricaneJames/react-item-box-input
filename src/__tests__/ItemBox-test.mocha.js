@@ -1,7 +1,6 @@
-require('./testdom')();
 var Immutable = require('immutable');
-var React = require('react/addons');
-var TestUtils = React.addons.TestUtils;
+var React = require('react');
+var TestUtils = require('react-addons-test-utils');
 var ItemBox = require('../ItemBox');
 
 describe('ItemBox', function() {

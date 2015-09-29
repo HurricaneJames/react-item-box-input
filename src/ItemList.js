@@ -1,4 +1,5 @@
 var React = require('react')
+  , ReactDOM = require('react-dom')
   , ImmutablePropTypes = require('react-immutable-proptypes')
   , KeyCodes = require('./KeyCodes');
 
@@ -37,10 +38,10 @@ var ItemList = React.createClass({
     if(this.props.onLastItemRightBoundaryChange) {
       if(this.props.items.size > 0) {
         var lastItem = this.refs['item' + (this.props.items.size - 1)];
-        var newBoundary = Math.ceil(React.findDOMNode(lastItem).getBoundingClientRect().right);
+        var newBoundary = Math.ceil(ReactDOM.findDOMNode(lastItem).getBoundingClientRect().right);
         this.props.onLastItemRightBoundaryChange(newBoundary);
       }else {
-        this.props.onLastItemRightBoundaryChange(React.findDOMNode(this).getBoundingClientRect().right);
+        this.props.onLastItemRightBoundaryChange(ReactDOM.findDOMNode(this).getBoundingClientRect().right);
       }
     }
   },
@@ -52,12 +53,12 @@ var ItemList = React.createClass({
   },
   triggerBlur: function() {
     if(this.state.focused) {
-      if(this.props.onBlur) { this.props.onBlur({ target: React.findDOMNode(this) }); }
+      if(this.props.onBlur) { this.props.onBlur({ target: ReactDOM.findDOMNode(this) }); }
       this.setState({ focused: false });
     }
   },
   focus: function(element) {
-    if(element) { React.findDOMNode(element).focus(); }
+    if(element) { ReactDOM.findDOMNode(element).focus(); }
     this.checkComponentFocus({ target: element });
   },
   selectItem: function(index) {

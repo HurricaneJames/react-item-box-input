@@ -1,6 +1,7 @@
 /*eslint-disable react/no-did-mount-set-state, react/no-did-update-set-state, dot-notation */
 
 var React = require('react')
+  , ReactDOM = require('react-dom')
   , Immutable = require('immutable')
   , ImmutablePropTypes = require('react-immutable-proptypes')
   , ItemList = require('./ItemList')
@@ -77,14 +78,14 @@ var ItemBox = React.createClass({
     }
   },
   getCorrectEntryWidth: function(entryText) {
-    var node = React.findDOMNode(this.refs['entry']);
+    var node = ReactDOM.findDOMNode(this.refs['entry']);
     var entryOffset = (this.state.lastItemRightBoundary > 0 ? this.state.lastItemRightBoundary : node.offsetLeft) || 0;
     var maxWidth = node.parentNode.clientWidth || this.props.defaultWidth;
     var textWidth = this.getTextWidth(entryText) || 0;
     return (textWidth + entryOffset > maxWidth) ? maxWidth : maxWidth - entryOffset;
   },
   getTextWidth: function(text) {
-    var node = React.findDOMNode(this.refs['testarea']);
+    var node = ReactDOM.findDOMNode(this.refs['testarea']);
     node.innerHTML = text;
     return node.offsetWidth;
   },
@@ -152,7 +153,7 @@ var ItemBox = React.createClass({
   },
   onItemListSelectNextField: function() {
     var entry = this.refs['entry'];
-    if(entry) { React.findDOMNode(entry).focus(); }
+    if(entry) { ReactDOM.findDOMNode(entry).focus(); }
   },
   onResize: function() {
     this.resizeEntryWidth(this.props.value);
