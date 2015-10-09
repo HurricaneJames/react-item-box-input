@@ -56,6 +56,9 @@ var ItemBox = React.createClass({
   componentDidUpdate: function() {
     this.resizeEntryWidth(this.props.value);
   },
+  isFocused: function() {
+    return this.state.focused || this.refs.entry === document.activeElement;
+  },
   updateRightBoundary: function(newRightBoundary) {
     if(this.state.lastItemRightBoundary !== newRightBoundary) {
       this.setState({lastItemRightBoundary: newRightBoundary});
@@ -161,10 +164,18 @@ var ItemBox = React.createClass({
   render: function() {
     var inputStyle = {
       display: 'inline-block',
-      width: this.state.width
+      width: this.state.width,
+      boxShadow: 'none',
+      border: 'none',
+      background: 'transparent',
+      margin: 0
     };
+    var componentStyle = {
+      border: '1px solid #ccc',
+      backgroundColor: this.isFocused() ? '#fafafa' : 'transparent',
+    }
     return (
-      <div>
+      <div style={componentStyle}>
         <ResizeDetector onResize={this.onResize} />
         <div ref="testarea" className="testarea" style={TEST_AREA_STYLE} />
         <ItemList
