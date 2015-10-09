@@ -106,6 +106,9 @@ var ItemList = React.createClass({
       case KeyCodes.RIGHT_ARROW:
         this.selectNext();
         break;
+      case KeyCodes.BACKSPACE:
+        e.preventDefault();
+        break;
     }
   },
   onKeyUp: function(e) {

@@ -1,6 +1,6 @@
 {
   "name": "react-item-box-input",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "An input box with arrangable/removable items",
   "main": "dist/ItemBox.js",
   "scripts": {

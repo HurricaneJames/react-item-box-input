@@ -26,8 +26,9 @@ Each item is rendered with by a template. If the item specifies its own template
 The text entry is done with an input element. Whenever the user types, it is passed up via the onChange prop. There is also an onTrigger prop that will trigger when a keyUp event (useful for tracking keys like tab or escape that do not trigger onChange).
 
 ## Changelog
-2.1.0
+2.1.1
   - fix bug where hitting backspace on item in list causes the browser to go back in history
+2.1.0
   - style updates so it looks more like a single input (2.2 will probably be an update to add better style control)
 
 2.0.0 updated to work with React 0.14.0-rc1

@@ -309,12 +309,13 @@ describe('ItemBox', function() {
       var mockPreventDefault = sinon.spy();
       TestUtils.Simulate.click(check[1]);
       expect(mockOnChange.called).not.to.be.ok();
-      TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_BACKSPACE });
+      TestUtils.Simulate.keyDown(check[1], { keyCode: KEY_CODE_BACKSPACE, preventDefault: mockPreventDefault });
+      expect(mockPreventDefault.callCount).to.be(1);
       expect(mockOnChange.called).not.to.be.ok();
       TestUtils.Simulate.keyUp(check[1], { keyCode: KEY_CODE_BACKSPACE, preventDefault: mockPreventDefault });
       expect(mockOnChange.called).to.be.ok();
       expect(mockOnChange.args[0][0]).to.be(1);
-      expect(mockPreventDefault.callCount).to.be(1);
+      expect(mockPreventDefault.callCount).to.be(2);
     });
     it('should call onRemove with the selected item when the item self reports a onRemove operation', function() {
       var view = TestUtils.renderIntoDocument(<TestComponent items={items} onRemove={mockOnChange} />);
